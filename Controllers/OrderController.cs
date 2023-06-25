@@ -17,8 +17,17 @@ namespace SampleRESTAPI.Controllers
             return db.GetOrders();
         }
 
+        [HttpGet("{id}", Name = "GetOrder")]
+        public ActionResult<Order> Get(int id)
+        {
+            var order = db.GetOrder(id);
+            if (order == null)
+                return NotFound();
+            return order;
+        }
+
         [HttpPost(Name ="CreateOrder")]
-        public IActionResult Create([FromBody] Order order)
+        public IActionResult Post([FromBody] Order order)
         {
             if (ModelState.IsValid)
             {
@@ -31,7 +40,7 @@ namespace SampleRESTAPI.Controllers
         }
         
         [HttpPatch("{id}", Name ="UpdateOrder")]
-        public IActionResult Put(int id, [FromBody] Order order)
+        public IActionResult Patch(int id, [FromBody] Order order)
         {
              if (order == null)
                  return BadRequest();

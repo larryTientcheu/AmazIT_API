@@ -6,20 +6,14 @@ namespace SampleRESTAPI.Models
     public class OrderItem
     {
         [Key]
-        public int Id { get; set; }
-
-        public int OrderId { get; set; }
-
+        public int OrderItemId { get; set; }
         [ForeignKey("OrderId")]
-        public required Order Order { get; set; }
-
-        public int ProductId { get; set; }
-
+        public int OrderId { get; set; }
+        public required Order? Order { get; set; }
         [ForeignKey("ProductId")]
-        public required Product Product { get; set; }
-
+        public int ProductId { get; set; }        
+        public required Product? Product { get; set; }
         public int Quantity { get; set; }
-
         public double Price { get; set; }
     }
 }
