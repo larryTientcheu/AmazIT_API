@@ -54,6 +54,50 @@ namespace AmazIT_API.DatabaseClasses
             return null;
         }
 
+        public List<Product>? GetProductsByName(string productName)
+        {
+            List<Product> products = new List<Product>();
+            using (SQLiteConnection conn = new SQLiteConnection(connectionString))
+            {
+                conn.Open();
+
+                using (SQLiteCommand command = new SQLiteCommand("SELECT * FROM Products WHERE name LIKE '%' || @ProductName || '%';", conn))
+                {
+                    command.Parameters.AddWithValue("@ProductName", productName);
+                    using (var reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            products.Add(CreateProductObject(reader));
+                        }
+                    }
+                }
+            }
+            return products;
+        }
+
+        public List<Product>? GetProductsByCategory(string productCategory)
+        {
+            List<Product> products = new List<Product>();
+            using (SQLiteConnection conn = new SQLiteConnection(connectionString))
+            {
+                conn.Open();
+
+                using (SQLiteCommand command = new SQLiteCommand("SELECT * FROM Products WHERE category COLLATE NOCASE = @ProductCategory;", conn))
+                {
+                    command.Parameters.AddWithValue("@ProductCategory", productCategory);
+                    using (var reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            products.Add(CreateProductObject(reader));
+                        }
+                    }
+                }
+            }
+            return products;
+        }
+
         public int AddProduct(Product product)
         {
             // Une autre façon d'utiliser les usings de manière plus courte, sans les accolades 

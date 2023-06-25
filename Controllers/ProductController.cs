@@ -14,21 +14,48 @@ namespace SampleRESTAPI.Controllers
 
 
         [HttpGet(Name = "GetAllProducts")]
-        public IEnumerable<Product> Get()
+        public ActionResult<List<Product>> Get([FromQuery] string name="", string category="")
         {
-            return db.GetProducts();
+            if (string.IsNullOrEmpty(name) && string.IsNullOrEmpty(category))
+                return db.GetProducts();
+
+            else if (!string.IsNullOrEmpty(name))
+            {
+                var product = db.GetProductsByName(name);
+                if (product == null)
+                    return NotFound();
+                return product;
+            }
+            else if (!string.IsNullOrEmpty(category))
+            {
+                var product = db.GetProductsByCategory(category);
+                if (product == null)
+                    return NotFound();
+                return product;
+            }
+            else { return NotFound(); }
+
         }
+        /*[HttpGet("getbyname", Name = "GetProductsByName")]
+        public ActionResult<List<Product>> GetProductByName([FromQuery] string name)
+        {
+            var product = db.GetProductsByName(name);
+            if (product == null)
+                return NotFound();
+            return product;
+        }*/
 
         [HttpGet("{id}", Name = "GetProduct")]
         public ActionResult<Product> Get(int id)
         {
             var product = db.GetProductById(id);
             if (product == null)
-            {
-                return NotFound();
-            }
+                return NotFound();          
             return product;
         }
+       
+        
+        
 
         [HttpPost(Name = "CreateProduct")]
         public IActionResult Create([FromBody] Product product)
