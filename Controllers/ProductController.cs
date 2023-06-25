@@ -10,25 +10,58 @@ namespace SampleRESTAPI.Controllers
     [ApiController]
     public class ProductController : ControllerBase
     {
-        ProductDbManager db = new ProductDbManager("Data Source=DatabaseFile/AmazIT_API.db");
+        ProductDbManager db = new ProductDbManager();
 
 
         [HttpGet(Name = "GetAllProducts")]
-        public IEnumerable<Product> Get()
+        public ActionResult<List<Product>> Get([FromQuery] string name="", string category="", double minPrice = 0, double maxPrice = 0)
         {
-            return db.GetProducts();
+            if (string.IsNullOrEmpty(name) && string.IsNullOrEmpty(category) && minPrice == 0 && maxPrice == 0 )
+                return db.GetProducts();
+
+            else if (!string.IsNullOrEmpty(name))
+            {
+                var product = db.GetProductsByName(name);
+                if (product == null)
+                    return NotFound();
+                return product;
+            }
+            else if (!string.IsNullOrEmpty(category))
+            {
+                var product = db.GetProductsByCategory(category);
+                if (product == null)
+                    return NotFound();
+                return product;
+            }
+            else 
+            {
+                var product = db.GetProductsByPrice(minPrice, maxPrice);
+                if (product == null)
+                    return NotFound();
+                return product;
+            }
+
         }
+        /*[HttpGet("getbyname", Name = "GetProductsByName")]
+        public ActionResult<List<Product>> GetProductByName([FromQuery] string name)
+        {
+            var product = db.GetProductsByName(name);
+            if (product == null)
+                return NotFound();
+            return product;
+        }*/
 
         [HttpGet("{id}", Name = "GetProduct")]
         public ActionResult<Product> Get(int id)
         {
             var product = db.GetProductById(id);
             if (product == null)
-            {
-                return NotFound();
-            }
+                return NotFound();          
             return product;
         }
+       
+        
+        
 
         [HttpPost(Name = "CreateProduct")]
         public IActionResult Create([FromBody] Product product)

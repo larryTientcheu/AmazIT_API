@@ -1,11 +1,11 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
+using System.Collections.Generic;
 
 namespace SampleRESTAPI.Models
 {
     public class Customer
     {
-        // PRIMARY KEY
         public int CustomerID { get; set; }
 
 

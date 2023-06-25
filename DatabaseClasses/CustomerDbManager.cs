@@ -6,7 +6,7 @@ namespace AmazIT_API.DatabaseClasses
 {
     public class CustomerDbManager : DbManager
     {
-        public CustomerDbManager(string connectionString) : base(connectionString){}
+        public CustomerDbManager(){}
 
 
         #region CUSTOMERS
@@ -34,12 +34,37 @@ namespace AmazIT_API.DatabaseClasses
             return customers;
         }
 
-        public Customer GetCustomerById(int id)
+        public List<Customer>? GetCustomerByFandLNames(string firstName, string lastName)
+        {
+            List<Customer> customers = new List<Customer>();
+            using (SQLiteConnection conn = new SQLiteConnection(connectionString))
+            {
+                conn.Open();
+
+                // Get customers by first and last name without case sensitivity
+                using (SQLiteCommand command = new SQLiteCommand("SELECT * FROM Customers WHERE first_name COLLATE NOCASE = @FirstName AND last_name COLLATE NOCASE = @LastName;", conn))
+                {
+                    command.Parameters.AddWithValue("@FirstName", firstName);
+                    command.Parameters.AddWithValue("@LastName", lastName);
+                    using (var reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            customers.Add(CreateCustomerObject(reader));
+                        }
+                    }
+                }
+            }
+            return customers;
+        }
+
+        public Customer? GetCustomerById(int id)
         {
             using (var conn = new SQLiteConnection(connectionString))
             {
                 conn.Open();
 
+                // Get Customer by using unique id
                 using (var command = new SQLiteCommand("SELECT * FROM Customers WHERE id=@id", conn))
                 {
                     command.Parameters.AddWithValue("@id", id);

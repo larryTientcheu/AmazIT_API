@@ -8,9 +8,9 @@ namespace SampleRESTAPI.DatabaseClasses
     {
         protected readonly string connectionString;
 
-        public DbManager(string connectionString)
+        public DbManager()
         {
-            this.connectionString = connectionString;
+            this.connectionString = "Data Source=DatabaseFile/AmazIT_API.db";
         }
     }
 }

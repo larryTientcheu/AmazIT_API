@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SampleRESTAPI.DatabaseClasses;
 using SampleRESTAPI.Models;
+using System.Xml.Linq;
 
 namespace SampleRESTAPI.Controllers
 {
@@ -10,13 +11,18 @@ namespace SampleRESTAPI.Controllers
     [ApiController]
     public class CustomerController : ControllerBase
     {
-        CustomerDbManager db = new CustomerDbManager("Data Source=DatabaseFile/AmazIT_API.db");
+        CustomerDbManager db = new CustomerDbManager();
 
 
         [HttpGet(Name = "GetAllCustomers")]
-        public IEnumerable<Customer> Get()
+        public ActionResult<List<Customer>> Get([FromQuery] string firstName = "", string lastName = "")
         {
-            return db.GetCustomers();
+            if (string.IsNullOrEmpty(firstName) && string.IsNullOrEmpty(lastName))
+                return db.GetCustomers();
+            var customer = db.GetCustomerByFandLNames(firstName, lastName);
+            if (customer == null)
+                return NotFound();
+            return customer;
         }
 
         [HttpGet("{id}", Name = "GetCustomer")]
@@ -48,7 +54,7 @@ namespace SampleRESTAPI.Controllers
         [HttpPut("{id}", Name = "UpdateCustomer")]
         public IActionResult Put(int id, [FromBody] Customer customer)
         {
-            if (customer == null || customer.CustomerID != id)
+            if (customer == null)
             {
                 return BadRequest();
             }

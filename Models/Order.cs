@@ -5,7 +5,17 @@ namespace SampleRESTAPI.Models
 {
     public class Order
     {
+        [Key]
+        public int OrderId { get; set; }
 
-        // Declare data here with properties :)
+        [ForeignKey("CustomerId")]
+        public int CustomerId { get; set; }
+        public Customer? Customer { get; set; }
+
+        public string? OrderDate { get; set; }
+
+        public double Total { get; set; }
+
+
     }
 }

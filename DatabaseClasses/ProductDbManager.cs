@@ -2,15 +2,18 @@
 using System.Data.SQLite;
 using System.Data;
 using SampleRESTAPI.DatabaseClasses;
+using AmazIT_API.Models;
 
 namespace AmazIT_API.DatabaseClasses
 {
     public class ProductDbManager : DbManager
     {
-        public ProductDbManager(string connectionString) : base(connectionString) { }
+        public ProductDbManager(){ }
 
         #region PRODUCTS
         // Product CRUD operations
+
+        //Get All products
         public List<Product> GetProducts()
         {
             List<Product> products = new List<Product>();
@@ -52,6 +55,103 @@ namespace AmazIT_API.DatabaseClasses
                 }
             }
             return null;
+        }
+
+        public List<Product>? GetProductsByName(string productName)
+        {
+            List<Product> products = new List<Product>();
+            using (SQLiteConnection conn = new SQLiteConnection(connectionString))
+            {
+                conn.Open();
+                // Use matching query to select a product name
+                using (SQLiteCommand command = new SQLiteCommand("SELECT * FROM Products WHERE name LIKE '%' || @ProductName || '%';", conn))
+                {
+                    command.Parameters.AddWithValue("@ProductName", productName);
+                    using (var reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            products.Add(CreateProductObject(reader));
+                        }
+                    }
+                }
+            }
+            return products;
+        }
+
+        public List<CustomerOrders>? GetProductsByCustomer(int customerId)
+        {
+            List<CustomerOrders> customerOrders = new List<CustomerOrders>();
+            // Custom query to get products by customers
+            using (SQLiteConnection conn = new SQLiteConnection(connectionString))
+            {
+                string query = @"SELECT  o.customer_id, c.first_name, c.last_name,
+                    oi.order_id, oi.product_id, p.name as product_name,p.price AS unit_price, oi.quantity, oi.price AS total_price
+                    FROM order_items AS oi
+                    JOIN products AS p ON oi.product_id = p.id
+                    JOIN orders AS o ON oi.order_id = o.id 
+                    JOIN customers as c ON o.customer_id = c.id WHERE o.customer_id = @customerId
+                    ORDER BY c.last_name, c.first_name";
+                conn.Open();
+                using (SQLiteCommand command = new SQLiteCommand(query, conn))
+                {
+                    command.Parameters.AddWithValue("@customerId", customerId);
+                    using (var reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            customerOrders.Add(CreateCustomerOrdersObject(reader));
+                        }
+                    }
+                }
+            }
+            return customerOrders;
+            
+        }
+
+        public List<Product>? GetProductsByCategory(string productCategory)
+        {
+            List<Product> products = new List<Product>();
+            using (SQLiteConnection conn = new SQLiteConnection(connectionString))
+            {
+                conn.Open();
+
+                using (SQLiteCommand command = new SQLiteCommand("SELECT * FROM Products WHERE category COLLATE NOCASE = @ProductCategory;", conn))
+                {
+                    command.Parameters.AddWithValue("@ProductCategory", productCategory);
+                    using (var reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            products.Add(CreateProductObject(reader));
+                        }
+                    }
+                }
+            }
+            return products;
+        }
+
+        public List<Product>? GetProductsByPrice(double minPrice, double maxPrice)
+        {
+            List<Product> products = new List<Product>();
+            using (SQLiteConnection conn = new SQLiteConnection(connectionString))
+            {
+                conn.Open();
+
+                using (SQLiteCommand command = new SQLiteCommand("SELECT * FROM Products WHERE price >= @minPrice AND price <= @maxPrice;", conn))
+                {
+                    command.Parameters.AddWithValue("@minPrice", minPrice);
+                    command.Parameters.AddWithValue("@maxPrice", maxPrice);
+                    using (var reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            products.Add(CreateProductObject(reader));
+                        }
+                    }
+                }
+            }
+            return products;
         }
 
         public int AddProduct(Product product)
@@ -118,6 +218,21 @@ namespace AmazIT_API.DatabaseClasses
                 Price = Convert.ToDecimal(reader["price"]),
                 Stock = Convert.ToInt32(reader["stock"]),
                 Category = Convert.ToString(reader["category"])
+            };
+        }
+
+        private CustomerOrders CreateCustomerOrdersObject(SQLiteDataReader reader)
+        {
+            return new CustomerOrders
+            {
+                OrderId = Convert.ToInt32(reader["order_id"]),
+                ProductId = Convert.ToInt32(reader["product_id"]),
+                ProductName = Convert.ToString(reader["product_name"]),
+                CustomerId = Convert.ToInt32(reader["customer_id"]),
+                CustomerName = Convert.ToString(reader["first_name"]) + " " + Convert.ToString(reader["last_name"]),
+                Quantity = Convert.ToInt32(reader["quantity"]),
+                TotalPrice = Convert.ToDecimal(reader["total_price"]),
+                UnitPrice = Convert.ToDecimal(reader["unit_price"])
             };
         }
         #endregion
