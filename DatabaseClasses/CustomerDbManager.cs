@@ -57,7 +57,7 @@ namespace AmazIT_API.DatabaseClasses
             return customers;
         }
 
-        public Customer GetCustomerById(int id)
+        public Customer? GetCustomerById(int id)
         {
             using (var conn = new SQLiteConnection(connectionString))
             {

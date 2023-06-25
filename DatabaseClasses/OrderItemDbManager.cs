@@ -2,6 +2,7 @@
 using SampleRESTAPI.Models;
 using System.Diagnostics.Eventing.Reader;
 using SampleRESTAPI.DatabaseClasses;
+using AmazIT_API.Models;
 
 namespace AmazIT_API.DatabaseClasses
 {
@@ -23,6 +24,16 @@ namespace AmazIT_API.DatabaseClasses
                 ProductId = Convert.ToInt32(reader["product_id"]),
                 Quantity = Convert.ToInt32(reader["quantity"]),
                 Price = Convert.ToDouble(reader["price"])
+            };
+        }
+
+        private BestSelling CreateBestSellingObject(SQLiteDataReader reader)
+        {
+            return new BestSelling
+            {
+                ProductId = Convert.ToInt32(reader["product_id"]),
+                ProductName = Convert.ToString(reader["product_name"]),
+                TotalQuantity = Convert.ToInt32(reader["total_quantity"])
             };
         }
 
@@ -66,6 +77,41 @@ namespace AmazIT_API.DatabaseClasses
             }
             return null;
         }
+
+        public BestSelling? GetBestSelling()
+        {
+            BestSelling bestSelling = new BestSelling();           
+            using (SQLiteConnection conn = new SQLiteConnection(connectionString))
+            {
+                conn.Open();
+
+                string query = @"
+        SELECT
+            oi.product_id, p.name AS product_name,
+            SUM(oi.quantity) AS total_quantity FROM order_items AS oi
+        JOIN
+            products AS p ON oi.product_id = p.id
+        GROUP BY
+            oi.product_id,
+            p.name
+        ORDER BY
+            total_quantity DESC
+        LIMIT 1";
+
+                using (SQLiteCommand command = new SQLiteCommand(query, conn))
+                {
+                    using (var reader = command.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {                           
+                                return CreateBestSellingObject(reader);
+                        }
+                    }
+                }
+            }
+            return null;
+        }
+
 
         public int AddOrderItem(OrderItem orderItem)
         {

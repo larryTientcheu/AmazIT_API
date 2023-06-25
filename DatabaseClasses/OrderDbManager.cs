@@ -76,7 +76,29 @@ namespace AmazIT_API.DatabaseClasses
                     {
                         while (reader.Read())
                         {
-                            Order.Add(CreateCustomerObject(reader));
+                            orders.Add(CreateOrderObject(reader));
+                        }
+                    }
+                }
+            }
+            return orders;
+        }
+
+        public List<Order>? GetOrderGreaterThanTotal(int total)
+        {
+            List<Order> orders = new List<Order>();
+            using (SQLiteConnection conn = new SQLiteConnection(connectionString))
+            {
+                conn.Open();
+
+                using (SQLiteCommand command = new SQLiteCommand("SELECT * FROM Orders WHERE total > @total;", conn))
+                {
+                    command.Parameters.AddWithValue("@total", total); ;
+                    using (var reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            orders.Add(CreateOrderObject(reader));
                         }
                     }
                 }

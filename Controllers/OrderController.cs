@@ -13,8 +13,25 @@ namespace SampleRESTAPI.Controllers
         OrderDbManager db = new OrderDbManager();
 
         [HttpGet(Name = "GetOrders")]
-        public IEnumerable<Order> Get() {
-            return db.GetOrders();
+        public ActionResult<List<Order>> Get([FromQuery] int customer_id = -1, int total = -1) {
+            if (customer_id == -1 && total == -1)
+                return db.GetOrders();
+            else if (customer_id != -1 && total == -1)
+            {
+                var order = db.GetOrderByCustomer(customer_id);
+                if (order == null)
+                    return NotFound();
+                return order;
+            }
+            else if (total != -1 && customer_id == -1)
+            {
+                var order = db.GetOrderGreaterThanTotal(total);
+                if (order == null)
+                    return NotFound();
+                return order;
+            }// add a codition to find a total greater than for a specific customer
+            else
+                return NotFound();
         }
 
         [HttpGet("{id}", Name = "GetOrder")]
