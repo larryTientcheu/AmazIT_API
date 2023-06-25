@@ -6,7 +6,6 @@ namespace SampleRESTAPI.Models
 {
     public class Customer
     {
-        // PRIMARY KEY
         public int CustomerID { get; set; }
 
 
@@ -20,7 +19,5 @@ namespace SampleRESTAPI.Models
 
 
         public string? Phone { get; set; }
-
-        //public ICollection<Order>? Order { get; set; }
     }
 }

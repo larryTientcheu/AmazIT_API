@@ -41,6 +41,7 @@ namespace AmazIT_API.DatabaseClasses
             {
                 conn.Open();
 
+                // Get customers by first and last name without case sensitivity
                 using (SQLiteCommand command = new SQLiteCommand("SELECT * FROM Customers WHERE first_name COLLATE NOCASE = @FirstName AND last_name COLLATE NOCASE = @LastName;", conn))
                 {
                     command.Parameters.AddWithValue("@FirstName", firstName);
@@ -63,6 +64,7 @@ namespace AmazIT_API.DatabaseClasses
             {
                 conn.Open();
 
+                // Get Customer by using unique id
                 using (var command = new SQLiteCommand("SELECT * FROM Customers WHERE id=@id", conn))
                 {
                     command.Parameters.AddWithValue("@id", id);

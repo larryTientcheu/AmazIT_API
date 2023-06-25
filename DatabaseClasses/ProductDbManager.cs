@@ -12,6 +12,8 @@ namespace AmazIT_API.DatabaseClasses
 
         #region PRODUCTS
         // Product CRUD operations
+
+        //Get All products
         public List<Product> GetProducts()
         {
             List<Product> products = new List<Product>();
@@ -61,7 +63,7 @@ namespace AmazIT_API.DatabaseClasses
             using (SQLiteConnection conn = new SQLiteConnection(connectionString))
             {
                 conn.Open();
-
+                // Use matching query to select a product name
                 using (SQLiteCommand command = new SQLiteCommand("SELECT * FROM Products WHERE name LIKE '%' || @ProductName || '%';", conn))
                 {
                     command.Parameters.AddWithValue("@ProductName", productName);
@@ -80,6 +82,7 @@ namespace AmazIT_API.DatabaseClasses
         public List<CustomerOrders>? GetProductsByCustomer(int customerId)
         {
             List<CustomerOrders> customerOrders = new List<CustomerOrders>();
+            // Custom query to get products by customers
             using (SQLiteConnection conn = new SQLiteConnection(connectionString))
             {
                 string query = @"SELECT  o.customer_id, c.first_name, c.last_name,

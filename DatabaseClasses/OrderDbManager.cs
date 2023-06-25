@@ -90,7 +90,7 @@ namespace AmazIT_API.DatabaseClasses
             using (SQLiteConnection conn = new SQLiteConnection(connectionString))
             {
                 conn.Open();
-
+                // Get the orders with a total greater than a certain value
                 using (SQLiteCommand command = new SQLiteCommand("SELECT * FROM Orders WHERE total > @total;", conn))
                 {
                     command.Parameters.AddWithValue("@total", total); ;
