@@ -6,7 +6,7 @@ namespace AmazIT_API.DatabaseClasses
 {
     public class CustomerDbManager : DbManager
     {
-        public CustomerDbManager(string connectionString) : base(connectionString){}
+        public CustomerDbManager(){}
 
 
         #region CUSTOMERS

@@ -10,7 +10,7 @@ namespace SampleRESTAPI.Controllers
     [ApiController]
     public class ProductController : ControllerBase
     {
-        ProductDbManager db = new ProductDbManager("Data Source=DatabaseFile/AmazIT_API.db");
+        ProductDbManager db = new ProductDbManager();
 
 
         [HttpGet(Name = "GetAllProducts")]

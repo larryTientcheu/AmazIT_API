@@ -6,17 +6,17 @@ namespace SampleRESTAPI.Models
     public class Order
     {
         [Key]
-        public int Id { get; set; }
-        public int CustomerId { get; set; }
+        public int OrderId { get; set; }
 
         [ForeignKey("CustomerId")]
-        public required Customer Customer { get; set; }
+        public int CustomerId { get; set; }
+        public Customer? Customer { get; set; }
 
         public string? OrderDate { get; set; }
 
-        public float Total { get; set; }
+        public double Total { get; set; }
 
-        public required ICollection<OrderItem> OrderItems { get; set; }
+        public ICollection<OrderItem>? OrderItems { get; set; }
 
     }
 }

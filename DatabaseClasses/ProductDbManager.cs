@@ -7,7 +7,7 @@ namespace AmazIT_API.DatabaseClasses
 {
     public class ProductDbManager : DbManager
     {
-        public ProductDbManager(string connectionString) : base(connectionString) { }
+        public ProductDbManager(){ }
 
         #region PRODUCTS
         // Product CRUD operations
