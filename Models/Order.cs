@@ -16,7 +16,6 @@ namespace SampleRESTAPI.Models
 
         public double Total { get; set; }
 
-        public ICollection<OrderItem>? OrderItems { get; set; }
 
     }
 }

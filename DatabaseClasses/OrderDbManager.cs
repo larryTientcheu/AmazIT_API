@@ -1,6 +1,7 @@
 ﻿using SampleRESTAPI.DatabaseClasses;
 using SampleRESTAPI.Models;
 using System.Data.SQLite;
+using System.Diagnostics.Eventing.Reader;
 
 namespace AmazIT_API.DatabaseClasses
 {
@@ -9,6 +10,17 @@ namespace AmazIT_API.DatabaseClasses
         public OrderDbManager(){ }
         CustomerDbManager customerDb = new CustomerDbManager();
 
+        private Order CreateOrderObject(SQLiteDataReader reader)
+        {
+            return new Order
+            {
+                OrderId = Convert.ToInt32(reader["id"]),
+                CustomerId = Convert.ToInt32(reader["customer_id"]),
+                Customer = customerDb.GetCustomerById(Convert.ToInt32(reader["customer_id"])),
+                OrderDate = Convert.ToString(reader["order_date"]),
+                Total = Convert.ToDouble(reader["total"])
+            };
+        }
         public List<Order> GetOrders()
         {
             List<Order> orders = new List<Order>();
@@ -29,17 +41,83 @@ namespace AmazIT_API.DatabaseClasses
             return orders;
         }
 
-        private Order CreateOrderObject(SQLiteDataReader reader)
+        public Order? GetOrder(int id)
         {
-            return new Order
+            using (var connection = new SQLiteConnection(connectionString))
             {
-                OrderId = Convert.ToInt32(reader["id"]),
-                CustomerId = Convert.ToInt32(reader["customer_id"]),
-                Customer = customerDb.GetCustomerById(Convert.ToInt32(reader["customer_id"])),
-                OrderDate = Convert.ToString(reader["order_date"]),
-                Total = Convert.ToDouble(reader["total"])
-            };
+                connection.Open();
+
+                using (var command = new SQLiteCommand("SELECT * FROM Orders WHERE id=@id", connection))
+                {
+                    command.Parameters.AddWithValue("@id", id);
+
+                    using (var reader = command.ExecuteReader())
+                    {
+                        if (reader.Read())                        
+                            return CreateOrderObject(reader);                        
+                    }
+                }
+            }
+            return null;
         }
+
+        public int AddOrder(Order order)
+        {
+            using(var connection = new SQLiteConnection(connectionString))
+            {
+                connection.Open();
+                using (var command = new SQLiteCommand("INSERT INTO Orders"+
+                    "(customer_id, order_date, total)"+
+                    "VALUES (@customerId, @orderDate, @total); SELECT last_insert_rowid();", connection))
+                {
+                    command.Parameters.AddWithValue("@customerId", order.CustomerId);
+                    command.Parameters.AddWithValue("@orderDate", order.OrderDate);
+                    command.Parameters.AddWithValue("@total", order.Total);
+
+                    var result = command.ExecuteScalar();
+                    if (result != null && int.TryParse(result.ToString(), out int newId))
+                        return newId;
+                    else
+                        throw new Exception("Failed to retrieve the new Order ID.");
+                }
+            }
+        }
+
+        public bool UpdateOrder(Order order)
+        {
+            using (var  connection = new SQLiteConnection(connectionString))
+            {
+                connection.Open();
+                using (var command = new SQLiteCommand("UPDATE Orders SET customer_id=@customerId, order_date=@orderDate, total=@total WHERE id=@id", connection))
+                {
+                    command.Parameters.AddWithValue("@id", order.OrderId);
+                    command.Parameters.AddWithValue("@customerId", order.CustomerId);
+                    command.Parameters.AddWithValue("@orderDate", order.OrderDate);
+                    command.Parameters.AddWithValue("@total", order.Total);
+
+                    if (command.ExecuteNonQuery() >= 1) return true;
+                    else return false;
+                }
+            }
+        }
+
+        public bool DeleteOrder(int id)
+        {
+            using (var connection = new SQLiteConnection(connectionString))
+            {
+                connection.Open();
+                using (var command = new SQLiteCommand("DELETE FROM Orders WHERE id=@id", connection))
+                {
+                    command.Parameters.AddWithValue("@id", id);
+
+                    if (command.ExecuteNonQuery() >= 1) return true;
+                    else return false;
+                }
+            }
+        }
+
+
+        
 
 
 

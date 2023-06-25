@@ -48,7 +48,7 @@ namespace SampleRESTAPI.Controllers
         [HttpPut("{id}", Name = "UpdateCustomer")]
         public IActionResult Put(int id, [FromBody] Customer customer)
         {
-            if (customer == null || customer.CustomerID != id)
+            if (customer == null)
             {
                 return BadRequest();
             }
