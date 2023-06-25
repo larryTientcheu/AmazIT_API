@@ -98,6 +98,29 @@ namespace AmazIT_API.DatabaseClasses
             return products;
         }
 
+        public List<Product>? GetProductsByPrice(double minPrice, double maxPrice)
+        {
+            List<Product> products = new List<Product>();
+            using (SQLiteConnection conn = new SQLiteConnection(connectionString))
+            {
+                conn.Open();
+
+                using (SQLiteCommand command = new SQLiteCommand("SELECT * FROM Products WHERE price >= @minPrice AND price <= @maxPrice;", conn))
+                {
+                    command.Parameters.AddWithValue("@minPrice", minPrice);
+                    command.Parameters.AddWithValue("@maxPrice", maxPrice);
+                    using (var reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            products.Add(CreateProductObject(reader));
+                        }
+                    }
+                }
+            }
+            return products;
+        }
+
         public int AddProduct(Product product)
         {
             // Une autre façon d'utiliser les usings de manière plus courte, sans les accolades 

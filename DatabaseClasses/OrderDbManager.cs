@@ -61,6 +61,31 @@ namespace AmazIT_API.DatabaseClasses
             return null;
         }
 
+
+        public List<Order>? GetOrderByCustomer(int customerId)
+        {
+            List<Order> orders = new List<Order>();
+            using (SQLiteConnection conn = new SQLiteConnection(connectionString))
+            {
+                conn.Open();
+
+                using (SQLiteCommand command = new SQLiteCommand("SELECT * FROM Orders WHERE customer_id = @customerId;", conn))
+                {
+                    command.Parameters.AddWithValue("@customerId", customerId);                    
+                    using (var reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            Order.Add(CreateCustomerObject(reader));
+                        }
+                    }
+                }
+            }
+            return orders;
+        }
+
+
+
         public int AddOrder(Order order)
         {
             using(var connection = new SQLiteConnection(connectionString))

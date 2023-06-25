@@ -34,6 +34,29 @@ namespace AmazIT_API.DatabaseClasses
             return customers;
         }
 
+        public List<Customer>? GetCustomerByFandLNames(string firstName, string lastName)
+        {
+            List<Customer> customers = new List<Customer>();
+            using (SQLiteConnection conn = new SQLiteConnection(connectionString))
+            {
+                conn.Open();
+
+                using (SQLiteCommand command = new SQLiteCommand("SELECT * FROM Customers WHERE first_name COLLATE NOCASE = @FirstName AND last_name COLLATE NOCASE = @LastName;", conn))
+                {
+                    command.Parameters.AddWithValue("@FirstName", firstName);
+                    command.Parameters.AddWithValue("@LastName", lastName);
+                    using (var reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            customers.Add(CreateCustomerObject(reader));
+                        }
+                    }
+                }
+            }
+            return customers;
+        }
+
         public Customer GetCustomerById(int id)
         {
             using (var conn = new SQLiteConnection(connectionString))

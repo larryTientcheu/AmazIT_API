@@ -14,9 +14,9 @@ namespace SampleRESTAPI.Controllers
 
 
         [HttpGet(Name = "GetAllProducts")]
-        public ActionResult<List<Product>> Get([FromQuery] string name="", string category="")
+        public ActionResult<List<Product>> Get([FromQuery] string name="", string category="", double minPrice = 0, double maxPrice = 0)
         {
-            if (string.IsNullOrEmpty(name) && string.IsNullOrEmpty(category))
+            if (string.IsNullOrEmpty(name) && string.IsNullOrEmpty(category) && minPrice == 0 && maxPrice == 0 )
                 return db.GetProducts();
 
             else if (!string.IsNullOrEmpty(name))
@@ -33,7 +33,13 @@ namespace SampleRESTAPI.Controllers
                     return NotFound();
                 return product;
             }
-            else { return NotFound(); }
+            else 
+            {
+                var product = db.GetProductsByPrice(minPrice, maxPrice);
+                if (product == null)
+                    return NotFound();
+                return product;
+            }
 
         }
         /*[HttpGet("getbyname", Name = "GetProductsByName")]
